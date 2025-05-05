@@ -11,33 +11,30 @@ def prim(graph):
 
     Each tree is a set of (weight, node1, node2) tuples.    
     """
-    def prim_helper(visited, frontier, tree):
-        if len(frontier) == 0:
-            return tree
-        else:
+    def prim_helper(start, visited):
+        frontier = []
+        tree = set()
+        heappush(frontier, (0, start, start))
+        while frontier:
             weight, node, parent = heappop(frontier)
             if node in visited:
-                return prim_helper(visited, frontier, tree)
-            else:
-                print('visiting', node)
-                # record this edge in the tree
+                continue
+            visited.add(node)
+            if node != parent:  
                 tree.add((weight, node, parent))
-                visited.add(node)
-                for neighbor, w in graph[node]:
-                    heappush(frontier, (w, neighbor, node))    
-                    # compare with dijkstra:
-                    # heappush(frontier, (distance + weight, neighbor))                
+            for neighbor, w in graph[node]:
+                if neighbor not in visited:
+                    heappush(frontier, (w, neighbor, node))
+        return tree
 
-                return prim_helper(visited, frontier, tree)
-        
-    # pick first node as source arbitrarily
-    source = list(graph.keys())[0]
-    frontier = []
-    heappush(frontier, (0, source, source))
-    visited = set()  # store the visited nodes (don't need distance anymore)
-    tree = set()
-    prim_helper(visited, frontier, tree)
-    return tree
+    visited = set()
+    all_trees = []
+    for node in graph:
+        if node not in visited:
+            tree = prim_helper(node, visited)
+            all_trees.append(tree)
+
+    return all_trees
 
 def test_prim():    
     graph = {
@@ -66,11 +63,11 @@ def test_prim():
     assert max([sum1, sum2]) == 12
     ###
 
-
+        
 
 def mst_from_points(points):
     """
-    Return the minimum spanning tree for a list of points, using euclidean distance 
+    Return the minimum spanning tree for a list of points, using euclidean distance
     as the edge weight between each pair of points.
     See test_mst_from_points.
 
@@ -82,6 +79,14 @@ def mst_from_points(points):
       tree connecting the cities in the input.
     """
     ###TODO
+    graph = defaultdict(set)
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            weight = euclidean_distance(points[i], points[j])
+            graph[points[i][0]].add((points[j][0], weight))
+            graph[points[j][0]].add((points[i][0], weight))
+    trees = prim(graph)
+    return list(trees[0])
     pass
 
 def euclidean_distance(p1, p2):
@@ -100,5 +105,3 @@ def test_mst_from_points():
     tree = mst_from_points(points)
     # check that the weight of the MST is correct.
     assert round(sum(e[0] for e in tree), 2) == 19.04
-
-

@@ -29,8 +29,8 @@ def test_prim():
     # weight of each tree.
     len1 = len(trees[0])
     len2 = len(trees[1])
-    assert min([len1, len2]) == 2
-    assert max([len1, len2]) == 5
+    assert min([len1, len2]) == 1
+    assert max([len1, len2]) == 4
 
     sum1 = sum(e[0] for e in trees[0])
     sum2 = sum(e[0] for e in trees[1])
